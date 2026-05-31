@@ -6,7 +6,13 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// God-mode dynamic SEO metadata generation for Books
+const getAbsoluteImageUrl = (url?: string | null) => {
+  if (!url) return "https://heinze.vercel.app/robert_heinze.png";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://heinze.vercel.app${url.startsWith("/") ? "" : "/"}${url}`;
+};
+
+// Dynamic SEO metadata generation for Books
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   
@@ -25,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const configRes = await db.query("SELECT value FROM system_configs WHERE key = 'author_name'");
     const authorName = configRes.rows[0]?.value || "Robert Heinze";
     
-    const bookCover = book.cover_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCRejJqwFi6W0wMDLd3b6gCn8YVlczZBzKXLpq6evk-kxJ6JYN34jsL0PlrppBYAJ2mPgQykR5uoA1U72oFBiJ9Hpl8gXaQJxj2gICBSJ-otTvKYmVi0A28y93RQZ8uskvh9vLXq0uLWNiXJdVH27aRcQk4Z2oajjiJwbh9tY886vRfpA8TxzL7EuClskavKIGkl5W1DLNRcI55XQjtvspN3IVZ8QBOoMRDj66WW0L85XBBccbuTkZaMsv7dGX8fuk7fcIkrcpvH1sy";
+    const bookCover = getAbsoluteImageUrl(book.cover_url);
 
     return {
       title: `${book.title} | ${authorName} Library`,
@@ -35,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: book.title,
         description: book.description,
         type: "book",
-        url: `https://heinze-analytics.pages.dev/books/${id}`,
+        url: `https://heinze.vercel.app/books/${id}`,
         images: [
           {
             url: bookCover,
@@ -92,29 +98,30 @@ export default async function BookPage({ params }: PageProps) {
   // Retrieve author details from system config tables
   const configRes = await db.query("SELECT key, value FROM system_configs WHERE key IN ('author_name', 'author_image')");
   let authorName = "Robert Heinze";
-  let authorImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuAXAbq5fmbDbwlQuGvhxtbDccY1fPh2n2k-qUk4gXmWWLdR0Gig_ozr37FflXFNZGeXau6fOpqtx59yBLmNZ1Dnd8W4d-R45U3CMmrJAW4vGqkRfVH1TJcxPVyZFl8dk8GnyTXL8gBCyfYPvzOztDm05yKA-8wPt3IRWH6Ebftp3ryQ5teJ9NRjL3_Q7NRsRc_wNMH4coDQQXU8F0y_Ukzk3s22mfj2_6N1DhHYh3Mt5AIBpr0KEncDPJDfhlMGBlT18NbqGw-UA325";
+  let authorImage = "";
 
   configRes.rows.forEach((row: any) => {
     if (row.key === "author_name" && row.value) authorName = row.value;
     if (row.key === "author_image" && row.value) authorImage = row.value;
   });
 
-  const bookCover = book.coverUrl || "https://lh3.googleusercontent.com/aida-public/AB6AXuCRejJqwFi6W0wMDLd3b6gCn8YVlczZBzKXLpq6evk-kxJ6JYN34jsL0PlrppBYAJ2mPgQykR5uoA1U72oFBiJ9Hpl8gXaQJxj2gICBSJ-otTvKYmVi0A28y93RQZ8uskvh9vLXq0uLWNiXJdVH27aRcQk4Z2oajjiJwbh9tY886vRfpA8TxzL7EuClskavKIGkl5W1DLNRcI55XQjtvspN3IVZ8QBOoMRDj66WW0L85XBBccbuTkZaMsv7dGX8fuk7fcIkrcpvH1sy";
+  const resolvedAuthorImage = getAbsoluteImageUrl(authorImage);
+  const resolvedCoverImage = getAbsoluteImageUrl(book.coverUrl);
 
-  // Inject structural JSON-LD Schema (God Mode Google Structured Data)
+  // Inject structural JSON-LD Schema (Google Structured Data)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Book",
     "name": book.title,
     "description": book.description,
-    "image": bookCover,
+    "image": resolvedCoverImage,
     "numberOfPages": book.pages,
     "bookFormat": "https://schema.org/EBook",
     "author": {
       "@type": "Person",
       "name": authorName,
-      "image": authorImage,
-      "url": "https://heinze-analytics.pages.dev"
+      "image": resolvedAuthorImage,
+      "url": "https://heinze.vercel.app"
     },
     "publisher": {
       "@type": "Organization",

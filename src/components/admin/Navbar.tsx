@@ -104,15 +104,11 @@ export default function Navbar({ activeTab, searchQuery, setSearchQuery, onMenuT
           title="Edit Robert Heinze Profile"
         >
           <div className="w-6 h-6 rounded-full bg-zinc-800 border border-border overflow-hidden flex items-center justify-center text-zinc-400 shrink-0">
-            {authorImage ? (
-              <img 
-                src={authorImage} 
-                alt="R. Heinze avatar" 
-                className="w-full h-full object-cover animate-fadeIn" 
-              />
-            ) : (
-              <User className="h-3 w-3" />
-            )}
+            <img 
+              src={authorImage || "/robert_heinze.png"} 
+              alt="R. Heinze avatar" 
+              className="w-full h-full object-cover animate-fadeIn" 
+            />
           </div>
           <span className="hidden md:inline font-mono text-[9px] text-zinc-400 uppercase tracking-wider font-semibold">
             {displayName}

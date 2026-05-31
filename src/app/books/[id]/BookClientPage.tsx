@@ -89,8 +89,15 @@ export default function BookClientPage({ initialBook }: BookClientPageProps) {
     setPdfLoading(true);
     setPdfError(null);
 
+    let finalPdfUrl = book.pdfUrl;
+    if (finalPdfUrl.startsWith("http://") || finalPdfUrl.startsWith("https://")) {
+      if (typeof window !== "undefined" && !finalPdfUrl.includes(window.location.host)) {
+        finalPdfUrl = `/api/proxy-pdf?url=${encodeURIComponent(finalPdfUrl)}`;
+      }
+    }
+
     pdfjsLib.getDocument({
-      url: book.pdfUrl,
+      url: finalPdfUrl,
       withCredentials: false
     }).promise.then((doc: any) => {
       setPdfDoc(doc);

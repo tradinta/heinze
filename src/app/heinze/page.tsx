@@ -22,14 +22,24 @@ const formatLinkUrl = (url: string) => {
 
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const configRes = await db.query("SELECT key, value FROM system_configs WHERE key IN ('author_name', 'author_bio')");
+    const configRes = await db.query("SELECT key, value FROM system_configs WHERE key IN ('author_name', 'author_bio', 'author_image')");
     let name = "Robert Heinze";
     let bio = "Researcher exploring the intersection of technology, philosophy, and human connection.";
+    let image = "";
     
     configRes.rows.forEach((row: any) => {
       if (row.key === "author_name" && row.value) name = row.value;
       if (row.key === "author_bio" && row.value) bio = row.value;
+      if (row.key === "author_image" && row.value) image = row.value;
     });
+
+    const getAbsoluteImageUrl = (url?: string | null) => {
+      if (!url) return "https://heinze.vercel.app/robert_heinze.png";
+      if (url.startsWith("http://") || url.startsWith("https://")) return url;
+      return `https://heinze.vercel.app${url.startsWith("/") ? "" : "/"}${url}`;
+    };
+
+    const ogImage = getAbsoluteImageUrl(image);
 
     return {
       title: `${name} | Author Profile`,
@@ -38,6 +48,18 @@ export async function generateMetadata(): Promise<Metadata> {
         title: name,
         description: bio,
         type: "profile",
+        images: [
+          {
+            url: ogImage,
+            alt: name
+          }
+        ]
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: name,
+        description: bio,
+        images: [ogImage]
       }
     };
   } catch (e) {
@@ -57,7 +79,7 @@ export default async function AuthorProfilePage() {
   
   let authorName = "Robert Heinze";
   let authorBio = "Researcher exploring the intersection of technology, philosophy, and human connection.";
-  let authorImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuAXAbq5fmbDbwlQuGvhxtbDccY1fPh2n2k-qUk4gXmWWLdR0Gig_ozr37FflXFNZGeXau6fOpqtx59yBLmNZ1Dnd8W4d-R45U3CMmrJAW4vGqkRfVH1TJcxPVyZFl8dk8GnyTXL8gBCyfYPvzOztDm05yKA-8wPt3IRWH6Ebftp3ryQ5teJ9NRjL3_Q7NRsRc_wNMH4coDQQXU8F0y_Ukzk3s22mfj2_6N1DhHYh3Mt5AIBpr0KEncDPJDfhlMGBlT18NbqGw-UA325";
+  let authorImage = "";
   
   let authorEmail = "";
   let authorPhone = "";
@@ -79,6 +101,14 @@ export default async function AuthorProfilePage() {
     if (row.key === "author_youtube" && row.value) authorYoutube = row.value;
     if (row.key === "author_long_bio_html" && row.value) authorLongBioHtml = row.value;
   });
+
+  const getAbsoluteImageUrl = (url?: string | null) => {
+    if (!url) return "/robert_heinze.png";
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    return `https://heinze.vercel.app${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
+  const resolvedAuthorImage = getAbsoluteImageUrl(authorImage);
 
   const hasAnySocials = authorEmail || authorPhone || authorTwitter || authorGithub || authorLinkedin || authorYoutube;
 
@@ -102,9 +132,9 @@ export default async function AuthorProfilePage() {
         {/* Profile header row */}
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6 pb-6 border-b border-border">
           <div className="w-24 h-24 rounded-full overflow-hidden border border-border bg-zinc-800 shrink-0 select-none">
-            {authorImage ? (
+            {resolvedAuthorImage ? (
               <img 
-                src={authorImage} 
+                src={resolvedAuthorImage} 
                 alt={`${authorName} portrait`} 
                 className="w-full h-full object-cover"
               />

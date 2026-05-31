@@ -6,12 +6,18 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-// God-mode dynamic SEO metadata generation
+const getAbsoluteImageUrl = (url?: string | null) => {
+  if (!url) return "https://heinze.vercel.app/robert_heinze.png";
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `https://heinze.vercel.app${url.startsWith("/") ? "" : "/"}${url}`;
+};
+
+// Dynamic SEO metadata generation
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
   
   try {
-    const artRes = await db.query("SELECT title, description, category, tags, published_date FROM articles WHERE id = $1", [id]);
+    const artRes = await db.query("SELECT title, description, category, tags, published_date, cover_image FROM articles WHERE id = $1", [id]);
     if (artRes.rows.length === 0) {
       return {
         title: "Essay Not Found | Robert Heinze",
@@ -24,27 +30,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // Fetch author metadata from system config
     const configRes = await db.query("SELECT key, value FROM system_configs WHERE key IN ('author_name', 'author_image')");
     let authorName = "Robert Heinze";
-    let authorImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuAXAbq5fmbDbwlQuGvhxtbDccY1fPh2n2k-qUk4gXmWWLdR0Gig_ozr37FflXFNZGeXau6fOpqtx59yBLmNZ1Dnd8W4d-R45U3CMmrJAW4vGqkRfVH1TJcxPVyZFl8dk8GnyTXL8gBCyfYPvzOztDm05yKA-8wPt3IRWH6Ebftp3ryQ5teJ9NRjL3_Q7NRsRc_wNMH4coDQQXU8F0y_Ukzk3s22mfj2_6N1DhHYh3Mt5AIBpr0KEncDPJDfhlMGBlT18NbqGw-UA325";
+    let authorImage = "";
     
     configRes.rows.forEach((row: any) => {
       if (row.key === "author_name" && row.value) authorName = row.value;
       if (row.key === "author_image" && row.value) authorImage = row.value;
     });
 
-    const ogImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuCRejJqwFi6W0wMDLd3b6gCn8YVlczZBzKXLpq6evk-kxJ6JYN34jsL0PlrppBYAJ2mPgQykR5uoA1U72oFBiJ9Hpl8gXaQJxj2gICBSJ-otTvKYmVi0A28y93RQZ8uskvh9vLXq0uLWNiXJdVH27aRcQk4Z2oajjiJwbh9tY886vRfpA8TxzL7EuClskavKIGkl5W1DLNRcI55XQjtvspN3IVZ8QBOoMRDj66WW0L85XBBccbuTkZaMsv7dGX8fuk7fcIkrcpvH1sy";
+    const ogImage = getAbsoluteImageUrl(article.cover_image || authorImage);
 
     return {
       title: `${article.title} | ${authorName}`,
       description: article.description || `Read "${article.title}" by ${authorName}.`,
       category: article.category,
       keywords: [article.category, ...(article.tags || []), authorName, "Heinze Insights", "Philosophy of Technology"],
-      authors: [{ name: authorName, url: "https://heinze-analytics.pages.dev" }],
+      authors: [{ name: authorName, url: "https://heinze.vercel.app" }],
       publisher: authorName,
       openGraph: {
         title: article.title,
         description: article.description,
         type: "article",
-        url: `https://heinze-analytics.pages.dev/articles/${id}`,
+        url: `https://heinze.vercel.app/articles/${id}`,
         publishedTime: article.published_date ? new Date(article.published_date).toISOString() : undefined,
         authors: [authorName],
         tags: article.tags || [],
@@ -100,14 +106,15 @@ export default async function ArticlePage({ params }: PageProps) {
     tags: row.tags || [],
     visits: row.visits ?? 0,
     bookmarksCount: row.bookmarks_count ?? 0,
-    status: row.status ?? "published"
+    status: row.status ?? "published",
+    coverImage: row.cover_image || ""
   };
 
   // Retrieve author details from system config tables
   const configRes = await db.query("SELECT key, value FROM system_configs WHERE key IN ('author_name', 'author_bio', 'author_image')");
   let authorName = "Robert Heinze";
   let authorBio = "Researcher exploring the intersection of technology, philosophy, and human connection.";
-  let authorImage = "https://lh3.googleusercontent.com/aida-public/AB6AXuAXAbq5fmbDbwlQuGvhxtbDccY1fPh2n2k-qUk4gXmWWLdR0Gig_ozr37FflXFNZGeXau6fOpqtx59yBLmNZ1Dnd8W4d-R45U3CMmrJAW4vGqkRfVH1TJcxPVyZFl8dk8GnyTXL8gBCyfYPvzOztDm05yKA-8wPt3IRWH6Ebftp3ryQ5teJ9NRjL3_Q7NRsRc_wNMH4coDQQXU8F0y_Ukzk3s22mfj2_6N1DhHYh3Mt5AIBpr0KEncDPJDfhlMGBlT18NbqGw-UA325";
+  let authorImage = "";
 
   configRes.rows.forEach((row: any) => {
     if (row.key === "author_name" && row.value) authorName = row.value;
@@ -115,20 +122,23 @@ export default async function ArticlePage({ params }: PageProps) {
     if (row.key === "author_image" && row.value) authorImage = row.value;
   });
 
-  // Inject structural JSON-LD Schema (God Mode Google Structured Data)
+  const resolvedAuthorImage = getAbsoluteImageUrl(authorImage);
+  const resolvedCoverImage = getAbsoluteImageUrl(article.coverImage || authorImage);
+
+  // Inject structural JSON-LD Schema (Google Structured Data)
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": article.title,
     "description": article.description,
-    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCRejJqwFi6W0wMDLd3b6gCn8YVlczZBzKXLpq6evk-kxJ6JYN34jsL0PlrppBYAJ2mPgQykR5uoA1U72oFBiJ9Hpl8gXaQJxj2gICBSJ-otTvKYmVi0A28y93RQZ8uskvh9vLXq0uLWNiXJdVH27aRcQk4Z2oajjiJwbh9tY886vRfpA8TxzL7EuClskavKIGkl5W1DLNRcI55XQjtvspN3IVZ8QBOoMRDj66WW0L85XBBccbuTkZaMsv7dGX8fuk7fcIkrcpvH1sy",
+    "image": resolvedCoverImage,
     "datePublished": article.publishedDate ? new Date(article.publishedDate).toISOString() : new Date().toISOString(),
     "author": {
       "@type": "Person",
       "name": authorName,
-      "image": authorImage,
+      "image": resolvedAuthorImage,
       "description": authorBio,
-      "url": "https://heinze-analytics.pages.dev",
+      "url": "https://heinze.vercel.app",
       "sameAs": [
         "https://twitter.com/robertheinze",
         "https://github.com/robertheinze"
@@ -139,12 +149,12 @@ export default async function ArticlePage({ params }: PageProps) {
       "name": authorName,
       "logo": {
         "@type": "ImageObject",
-        "url": authorImage
+        "url": resolvedAuthorImage
       }
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://heinze-analytics.pages.dev/articles/${id}`
+      "@id": `https://heinze.vercel.app/articles/${id}`
     }
   };
 
@@ -158,7 +168,7 @@ export default async function ArticlePage({ params }: PageProps) {
         initialArticle={article}
         initialAuthorName={authorName}
         initialAuthorBio={authorBio}
-        initialAuthorImage={authorImage}
+        initialAuthorImage={resolvedAuthorImage}
       />
     </>
   );

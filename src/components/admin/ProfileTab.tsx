@@ -25,7 +25,7 @@ export default function ProfileTab({ onProfileUpdated }: ProfileTabProps) {
   // Basic info states
   const [name, setName] = useState("Robert Heinze");
   const [bio, setBio] = useState("Researcher exploring the intersection of technology, philosophy, and human connection.");
-  const [avatarUrl, setAvatarUrl] = useState("https://lh3.googleusercontent.com/aida-public/AB6AXuAXAbq5fmbDbwlQuGvhxtbDccY1fPh2n2k-qUk4gXmWWLdR0Gig_ozr37FflXFNZGeXau6fOpqtx59yBLmNZ1Dnd8W4d-R45U3CMmrJAW4vGqkRfVH1TJcxPVyZFl8dk8GnyTXL8gBCyfYPvzOztDm05yKA-8wPt3IRWH6Ebftp3ryQ5teJ9NRjL3_Q7NRsRc_wNMH4coDQQXU8F0y_Ukzk3s22mfj2_6N1DhHYh3Mt5AIBpr0KEncDPJDfhlMGBlT18NbqGw-UA325");
+  const [avatarUrl, setAvatarUrl] = useState("");
   
   // Contact & Social links states
   const [email, setEmail] = useState("");
@@ -279,15 +279,11 @@ export default function ProfileTab({ onProfileUpdated }: ProfileTabProps) {
           
           <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-border/20">
             <div className="relative w-20 h-20 rounded-full overflow-hidden border border-border bg-background shrink-0 flex items-center justify-center">
-              {avatarUrl ? (
-                <img 
-                  src={avatarUrl} 
-                  alt="Portrait avatar preview" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <User className="h-8 w-8 text-zinc-600" />
-              )}
+              <img 
+                src={avatarUrl || "/robert_heinze.png"} 
+                alt="Portrait avatar preview" 
+                className="w-full h-full object-cover"
+              />
               {uploadingAvatar && (
                 <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
                   <RefreshCw className="h-5 w-5 animate-spin text-primary" />
