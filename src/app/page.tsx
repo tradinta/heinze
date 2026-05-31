@@ -27,6 +27,10 @@ export default function Home() {
   const { stats } = useReader();
   const toast = useToast();
   
+  const [authorName, setAuthorName] = useState("Robert Heinze");
+  const [authorBio, setAuthorBio] = useState("Perspectives on carbon and silicon cognition, the semantics of machine learning, and the preservation of focus in a hyper-connected world.");
+  const [authorImage, setAuthorImage] = useState("");
+  
   const [articles, setArticles] = useState<Article[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,15 +40,22 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [resArt, resBks] = await Promise.all([
+        const [resArt, resBks, resConfig] = await Promise.all([
           fetch("/api/articles"),
-          fetch("/api/books")
+          fetch("/api/books"),
+          fetch("/api/config")
         ]);
         const dataArt = await resArt.json();
         const dataBks = await resBks.json();
+        const dataConfig = await resConfig.json();
         
         if (dataArt.articles) setArticles(dataArt.articles);
         if (dataBks.books) setBooks(dataBks.books);
+        if (dataConfig.configs) {
+          if (dataConfig.configs.author_name) setAuthorName(dataConfig.configs.author_name);
+          if (dataConfig.configs.author_bio) setAuthorBio(dataConfig.configs.author_bio);
+          if (dataConfig.configs.author_image) setAuthorImage(dataConfig.configs.author_image);
+        }
       } catch (err) {
         console.error("Error loading home page feed:", err);
       } finally {
@@ -84,11 +95,11 @@ export default function Home() {
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl space-y-4">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight font-serif text-foreground">
-              Robert Heinze
+              {authorName}
             </h1>
             
             <p className="text-sm text-on-surface-variant font-sans leading-relaxed">
-              Perspectives on carbon and silicon cognition, the semantics of machine learning, and the preservation of focus in a hyper-connected world.
+              {authorBio}
             </p>
             
             <div className="flex items-center gap-3 pt-2 font-mono text-xs">
@@ -113,14 +124,14 @@ export default function Home() {
             <div className="border border-border p-1 bg-card-bg/50 shadow-md">
               <div className="relative w-40 h-52 overflow-hidden border border-zinc-800 bg-zinc-950">
                 <img 
-                  src="/robert_heinze.png" 
-                  alt="Robert Heinze Portrait" 
+                  src={authorImage || "/robert_heinze.png"} 
+                  alt={`${authorName} Portrait`} 
                   className="w-full h-full object-cover filter grayscale contrast-125 transition-transform duration-500 hover:scale-105" 
                 />
               </div>
             </div>
             <div className="mt-2.5 text-[9px] font-mono text-zinc-500 select-none uppercase tracking-widest text-center md:text-right w-40">
-              Robert Heinze
+              {authorName}
             </div>
           </div>
         </div>
