@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+:root {
+  /* Light Theme (Earthy/Warm Ceramic aesthetic from design) */
+  --background: #fff8f4;
+  --foreground: #211a13;
+  --primary: #934529;
+  --primary-container: #b25d3f;
+  --on-primary: #ffffff;
+  --secondary: #53643a;
+  --secondary-container: #d6eab5;
+  --on-secondary: #ffffff;
+  --card-bg: #fff1e6; /* surface-container-low */
+  --border: #dbc1b9; /* outline-variant */
+  --outline: #88726c;
+  --surface-container: #faebe0;
+  --surface-container-high: #f4e6da;
+  --surface-container-highest: #eee0d4;
+  --on-surface-variant: #55433d;
+}
+
+.dark {
+  /* Dark Theme (Earthy Obsidian & Muted Terracotta) */
+  --background: #14110e;
+  --foreground: #fdeee2;
+  --primary: #ffb59c;
+  --primary-container: #934529;
+  --on-primary: #390c00;
+  --secondary: #bacd9b;
+  --secondary-container: #3c4c25;
+  --on-secondary: #121f01;
+  --card-bg: #1e1712;
+  --border: #55433d;
+  --outline: #a08c86;
+  --surface-container: #2b211a;
+  --surface-container-high: #372f27;
+  --surface-container-highest: #4b3e34;
+  --on-surface-variant: #dbc1b9;
+}
+
+.sepia-mode {
+  /* Warm Sepia Theme (Classic Editorial Book theme) */
+  --background: #f4edd8;
+  --foreground: #433422;
+  --primary: #92400e;
+  --primary-container: #b45309;
+  --on-primary: #ffffff;
+  --secondary: #78350f;
+  --secondary-container: #fef3c7;
+  --on-secondary: #ffffff;
+  --card-bg: #ebe1c5;
+  --border: #e6d7bc;
+  --outline: #a18260;
+  --surface-container: #dfd4b8;
+  --surface-container-high: #d2c5a7;
+  --surface-container-highest: #c6b797;
+  --on-surface-variant: #6b5a45;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-container: var(--primary-container);
+  --color-on-primary: var(--on-primary);
+  --color-secondary: var(--secondary);
+  --color-secondary-container: var(--secondary-container);
+  --color-on-secondary: var(--on-secondary);
+  --color-border: var(--border);
+  --color-outline: var(--outline);
+  --color-card-bg: var(--card-bg);
+  
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-on-surface-variant: var(--on-surface-variant);
+  
+  --font-sans: var(--font-vietnam), system-ui, sans-serif;
+  --font-serif: var(--font-garamond), Georgia, serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* Typography styles for essays */
+.article-content p {
+  margin-bottom: 1.5rem;
+  line-height: 1.8;
+}
+.article-content h2 {
+  font-family: var(--font-garamond), Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2.5rem;
+  margin-bottom: 1.2rem;
+  color: var(--primary);
+}
+.article-content blockquote {
+  border-left: 4px solid var(--primary);
+  padding: 1.2rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: var(--on-surface-variant);
+  background-color: var(--card-bg);
+}
+
+.article-content a {
+  text-decoration: underline;
+  text-decoration-color: var(--primary);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  color: inherit;
+  font-weight: 500;
+  transition: text-decoration-color 0.15s ease, color 0.15s ease;
+}
+
+.article-content a:hover {
+  text-decoration-color: var(--foreground);
+  color: var(--primary);
+}
+
+.article-content a:has(img) {
+  text-decoration: none !important;
+  display: block;
+  position: relative;
+}
+
+.article-content a:has(img)::after {
+  content: "↗ EXTERNAL LINK";
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  font-weight: bold;
+  padding: 3px 6px;
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.article-content a:has(img):hover::after {
+  opacity: 1;
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.article-content a:has(img) img {
+  transition: filter 0.15s ease, border-color 0.15s ease;
+}
+
+.article-content a:has(img):hover img {
+  filter: brightness(1.05) contrast(1.02);
+  border-color: var(--primary) !important;
+}
+
+/* Highlights */
+.highlight-yellow::selection {
+  background-color: rgba(253, 224, 71, 0.4);
+}
+.highlight-green::selection {
+  background-color: rgba(74, 222, 128, 0.4);
+}
+.highlight-pink::selection {
+  background-color: rgba(244, 114, 182, 0.4);
+}
