@@ -81,13 +81,8 @@ export default function Home() {
     <div className="flex-1 flex flex-col">
       {/* Hero Section */}
       <section className="border-b border-border bg-card-bg/30 py-16 px-4">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div className="max-w-xl space-y-4">
-            <div className="inline-flex items-center gap-1.5 border border-primary/20 bg-primary/5 px-2.5 py-0.5 text-[10px] font-mono text-primary uppercase tracking-widest font-semibold">
-              <Sparkles className="h-3 w-3" />
-              Intelligence & Solitude
-            </div>
-            
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight font-serif text-foreground">
               Robert Heinze
             </h1>
@@ -99,56 +94,33 @@ export default function Home() {
             <div className="flex items-center gap-3 pt-2 font-mono text-xs">
               <Link
                 href="/articles"
-                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 hover:bg-primary/95 transition-colors"
+                className="flex items-center gap-1.5 bg-primary text-white px-4 py-2 hover:bg-primary/95 transition-colors font-bold"
               >
                 Read Essays
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
                 href="/books"
-                className="flex items-center gap-1.5 border border-border bg-background hover:bg-card-bg px-4 py-2 transition-colors text-foreground"
+                className="flex items-center gap-1.5 border border-border bg-background hover:bg-card-bg px-4 py-2 transition-colors text-foreground font-bold"
               >
                 Browse Books
               </Link>
             </div>
           </div>
 
-          {/* Reader Stats Panel */}
-          <div className="w-full md:w-72 border border-border bg-card-bg p-4 font-mono text-xs">
-            <div className="flex items-center justify-between border-b border-border pb-2 mb-3">
-              <span className="text-[9px] tracking-wider text-primary uppercase font-bold flex items-center gap-1">
-                <Flame className="h-3.5 w-3.5 text-primary" />
-                Reader Console
-              </span>
-              <span className="text-[8px] text-zinc-500 bg-background px-1.5 py-0.5 border border-border">
-                ONLINE
-              </span>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-500">Focus Time:</span>
-                <span className="text-foreground font-semibold">{formatTime(stats.timeSpentSeconds)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-500">Words Consumed:</span>
-                <span className="text-foreground font-semibold">{stats.wordsRead.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-zinc-500">Completions:</span>
-                <span className="text-foreground font-semibold">{stats.completedItems.length} items</span>
+          {/* Author Portrait */}
+          <div className="w-full md:w-auto shrink-0 flex flex-col items-center md:items-end">
+            <div className="border border-border p-1 bg-card-bg/50 shadow-md">
+              <div className="relative w-40 h-52 overflow-hidden border border-zinc-800 bg-zinc-950">
+                <img 
+                  src="/robert_heinze.png" 
+                  alt="Robert Heinze Portrait" 
+                  className="w-full h-full object-cover filter grayscale contrast-125 transition-transform duration-500 hover:scale-105" 
+                />
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[9px] text-zinc-500">
-              <span>Daily Goal: 20 mins</span>
-              <span className="text-primary font-semibold">
-                {Math.min(100, Math.floor((stats.timeSpentSeconds / 1200) * 100))}%
-              </span>
-            </div>
-            <div className="w-full bg-border h-1.5 mt-1.5 rounded-none overflow-hidden">
-              <div 
-                className="bg-primary h-full transition-all duration-300"
-                style={{ width: `${Math.min(100, Math.floor((stats.timeSpentSeconds / 1200) * 100))}%` }}
-              />
+            <div className="mt-2.5 text-[9px] font-mono text-zinc-500 select-none uppercase tracking-widest text-center md:text-right w-40">
+              Robert Heinze
             </div>
           </div>
         </div>
